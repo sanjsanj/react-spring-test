@@ -3,6 +3,11 @@
 
 import React from "react";
 import { Parallax } from "react-spring/renderprops-addons";
+import "promise-polyfill/src/polyfill";
+import "@babel/polyfill";
+import "core-js/fn/symbol/iterator.js";
+import "core-js/es6/symbol.js";
+
 import "./Parallax.css";
 
 const Page = ({ offset, caption, first, second, gradient, onClick }) => (
@@ -31,6 +36,19 @@ const Page = ({ offset, caption, first, second, gradient, onClick }) => (
 );
 
 export default class extends React.Component {
+  constructor(props) {
+    super(props);
+    if (!Object.entries)
+      Object.entries = function(obj) {
+        var ownProps = Object.keys(obj),
+          i = ownProps.length,
+          resArray = new Array(i); // preallocate the Array
+        while (i--) resArray[i] = [ownProps[i], obj[ownProps[i]]];
+
+        return resArray;
+      };
+  }
+
   scroll = to => this.refs.parallax.scrollTo(to);
   render() {
     return (
@@ -45,8 +63,8 @@ export default class extends React.Component {
           className="container"
           ref="parallax"
           pages={3}
-          horizontal
-          scrolling={false}
+          // horizontal
+          // scrolling={false}
         >
           <Page
             offset={0}
