@@ -1,5 +1,6 @@
-import React, { Component } from "react";
+import React from "react";
 import Parallax from "./Parallax";
+import "whatwg-fetch";
 import {
   useTransition,
   useSpring,
@@ -10,16 +11,17 @@ import {
 } from "react-spring";
 
 function App() {
-  const [data, setData] = React.useState([]);
+  const [data, setData] = React.useState({ people: [] });
   const [loading, setLoading] = React.useState(false);
 
   const fetchData = async () => {
     setLoading(true);
+    setData({ people: [] });
 
     const fetchResp = await fetch(`https://swapi.co/api/people/`);
     const fetchJson = await fetchResp.json();
 
-    setData(fetchJson.results);
+    setData({ people: fetchJson.results });
     setLoading(false);
   };
 
@@ -37,11 +39,20 @@ function App() {
   //   leave: { opacity: 0, fontSize: "10px" },
   // });
 
-  const config = { mass: 5, tension: 2000, friction: 200 };
-  const trail = useTrail(data.length, {
-    config,
+  const config = { mass: 20, tension: 1200, friction: 200 };
+  const peopleTrail = useTrail(data.people.length, {
+    config: config.gentle,
     from: { opacity: 0, fontSize: "10px" },
     to: { opacity: 1, fontSize: "60px" },
+  });
+
+  // console.log(data);
+
+  const imageSpringStyleProps = useSpring({
+    config: config.gentle,
+    from: { opacity: 0, transform: "translateX(100px)" },
+    to: { opacity: 1, transform: "translateX(0)" },
+    delay: 2000,
   });
 
   return (
@@ -58,9 +69,18 @@ function App() {
         <h1>Loading...</h1>
       ) : (
         // data.length &&
-        trail.map((props, index) => (
+        peopleTrail.map((props, index) => (
           <animated.div key={index} style={props}>
-            {data[index].name}
+            <>
+              {data.people[index].name}
+              <animated.img
+                style={{ ...imageSpringStyleProps, height: "100px" }}
+                alt={data.people[index].name}
+                src={`https://source.unsplash.com/1600x900/?${
+                  data.people[index].name
+                }`}
+              />
+            </>
           </animated.div>
         ))
       )}
